@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "tjtuom.omaleader",
+  "name": "Omaleader",
+  "version": "0.1.0",
+  "author": "tjtuom",
+  "description": "LazyVim/which-key style leader menu: press a leader, then single keys, with a popup listing what comes next",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Leader.qml"
+  }
+}
