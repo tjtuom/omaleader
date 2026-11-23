@@ -28,7 +28,7 @@ leader binding yourself, e.g. in `~/.config/hypr/omaleader.lua`, then add
 
 ```lua
 -- Replaces the stock Omarchy menu on Super+Space; the example keymap puts it
--- on Super+Space then Space.
+-- on Super+Space then o.
 o.rebind("SUPER + SPACE", "Leader menu", hl.dsp.global("omaleader:toggle"), { submap_universal = true })
 
 -- Omaleader switches Hyprland to this submap while it's open, so a still-held
@@ -39,7 +39,7 @@ end)
 ```
 
 Any free shortcut works as the leader; keep the `submap_universal = true`
-option so the same shortcut also closes the menu.
+option so the same shortcut still reaches Omaleader while the menu is open.
 
 ## Keymap
 
@@ -61,7 +61,7 @@ omarchy-shell shell rescanPlugins   # once, so it starts watching your new file
       "l": { "label": "Wider", "dispatch": "hl.dsp.window.resize({ x = 50, y = 0, relative = true })", "stay": true },
     }},
   }},
-  "space": { "label": "Omarchy menu", "exec": "omarchy-menu toggle root" },
+  "space": { "label": "Previous workspace", "dispatch": "hl.dsp.focus({ workspace = \"previous_per_monitor\" })" },
 }
 ```
 
@@ -76,7 +76,11 @@ Each key is a single character (case-sensitive) or one of `space`, `tab`,
 | `exec`     | Shell command, run with `bash -lc`. |
 | `stay`     | `true` keeps the popup open after running, so the key can repeat. |
 
-In the popup, Backspace goes up a level and Esc closes it.
+In the popup, Backspace goes up a level and Esc closes it. Pressing the leader
+shortcut again counts as Space at the current level, like LazyVim's
+`<leader><leader>`: with the example keymap, Super+Space twice jumps back to
+the previous workspace. A level without a `space` entry closes the menu
+instead.
 
 The keymap runs whatever commands you put in it, with your user's
 permissions, inside the Omarchy shell. Only add commands you trust.

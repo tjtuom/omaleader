@@ -14,7 +14,9 @@
   //   stay      true keeps the popup open after running, so the key can be
   //             repeated (handy for resizing). Esc closes.
   //
-  // In the popup: Backspace goes up a level, Esc closes.
+  // In the popup: Backspace goes up a level, Esc closes. Pressing the leader
+  // shortcut again acts as Space at the current level (or closes the menu if
+  // that level has no "space").
 
   "w": { "label": "Window", "keys": {
     "q": { "label": "Close", "dispatch": "hl.dsp.window.close()" },
@@ -91,5 +93,8 @@
     "m": { "label": "System menu", "exec": "omarchy-menu toggle system" },
   }},
 
-  "space": { "label": "Omarchy menu", "exec": "omarchy-menu toggle root" },
+  "o": { "label": "Omarchy menu", "exec": "omarchy-menu toggle root" },
+
+  // Space, or the leader shortcut pressed again: back to the previous workspace.
+  "space": { "label": "Previous workspace", "dispatch": "hl.dsp.focus({ workspace = \"previous_per_monitor\" })" },
 }

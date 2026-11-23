@@ -136,11 +136,17 @@ Item {
       return
     }
     var key = root.keyName(event)
-    if (!key || !root.node) return
-    var entry = root.node[key]
-    if (!entry || typeof entry !== "object") return
-    if (root.isGroup(entry)) { root.path = root.path.concat([key]); return }
-    root.run(entry)
+    if (key) root.activate(key)
+  }
+
+  // Press `key` at the current level: open its group or run it. False when the
+  // level has no such key.
+  function activate(key) {
+    var entry = root.node ? root.node[key] : null
+    if (!entry || typeof entry !== "object") return false
+    if (root.isGroup(entry)) root.path = root.path.concat([key])
+    else root.run(entry)
+    return true
   }
 
   function run(entry) {
@@ -167,10 +173,22 @@ Item {
     if (root.shell && typeof root.shell.hide === "function") root.shell.hide(root.pluginId)
   }
 
-  function toggle() {
-    if (root.opened) { root.dismiss(); return }
+  function show() {
     if (root.shell && typeof root.shell.summon === "function" && root.shell.summon(root.pluginId, "{}")) return
     root.open("{}")
+  }
+
+  function toggle() {
+    if (root.opened) root.dismiss()
+    else root.show()
+  }
+
+  // The leader shortcut. Pressed again while the menu is open it counts as
+  // Space at the current level (LazyVim's <leader><leader>), and closes the
+  // menu when that level has no "space" entry.
+  function leader() {
+    if (!root.opened) { root.show(); return }
+    if (!root.activate("space")) root.dismiss()
   }
 
   onOpenedChanged: Hyprland.dispatch('hl.dsp.submap("' + (root.opened ? "omaleader" : "reset") + '")')
@@ -180,8 +198,8 @@ Item {
   GlobalShortcut {
     appid: "omaleader"
     name: "toggle"
-    description: "Toggle the leader menu"
-    onPressed: root.toggle()
+    description: "Open the leader menu; pressed again, acts as Space"
+    onPressed: root.leader()
   }
 
   IpcHandler {
@@ -311,7 +329,8 @@ Item {
         Grid {
           id: grid
           width: parent.width
-          columns: card.columns
+          // Top-to-bottom like which-key; only rows is set, so the grid works out
+          // its column count and never warns while entries and rows update.
           flow: Grid.TopToBottom
           rows: Math.max(1, Math.ceil(root.entries.length / card.columns))
           columnSpacing: Style.spacing.md
@@ -322,7 +341,7 @@ Item {
 
             Row {
               required property var modelData
-              width: (grid.width - grid.columnSpacing * (grid.columns - 1)) / grid.columns
+              width: (grid.width - grid.columnSpacing * (card.columns - 1)) / card.columns
               height: root.rowHeight
               spacing: Style.spacing.md
 
