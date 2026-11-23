@@ -5,27 +5,30 @@ Press a leader shortcut, then plain single keys (`w` `r` `l l l`) instead of
 finger-twisting chords. A popup at the bottom of the screen lists the keys
 available at each step, so you don't have to remember them.
 
+![Omaleader popup](preview.png)
+
 It's an Omarchy shell plugin (QML), so it follows the current Omarchy theme.
+Each key runs a Hyprland dispatcher or a shell command that you define in your
+own keymap.
+
+## Requirements
+
+Omarchy with the Quickshell-based shell and Lua Hyprland config (`hl.*` and
+`o.*` in `~/.config/hypr/`). No other dependencies.
 
 ## Install
 
 ```sh
-git clone <this repo> ~/Dev/omaleader
-ln -s ~/Dev/omaleader ~/.config/omarchy/plugins/tjtuom.omaleader
+omarchy plugin add https://github.com/tjtuom/omaleader --enable
 ```
 
-Enable it in `~/.config/omarchy/shell.json`:
-
-```json
-"plugins": [
-  { "id": "tjtuom.omaleader" }
-]
-```
-
-Bind a leader key in Hyprland, e.g. `~/.config/hypr/omaleader.lua` required
-from `hyprland.lua`:
+Omaleader doesn't bind a key itself or touch your Hyprland config. Add the
+leader binding yourself, e.g. in `~/.config/hypr/omaleader.lua`, then add
+`require("hypr.omaleader")` to the end of `~/.config/hypr/hyprland.lua`:
 
 ```lua
+-- Replaces the stock Omarchy menu on Super+Space; the example keymap puts it
+-- on Super+Space then Space.
 o.rebind("SUPER + SPACE", "Leader menu", hl.dsp.global("omaleader:toggle"), { submap_universal = true })
 
 -- Omaleader switches Hyprland to this submap while it's open, so a still-held
@@ -35,11 +38,20 @@ hl.define_submap("omaleader", function()
 end)
 ```
 
+Any free shortcut works as the leader; keep the `submap_universal = true`
+option so the same shortcut also closes the menu.
+
 ## Keymap
 
-Your keymap lives in `~/.config/omarchy/omaleader.jsonc`. If that file doesn't
-exist, the bundled `keymap.example.jsonc` is used: copy it there as a starting
-point. Saved changes apply immediately.
+Your keymap lives in `~/.config/omarchy/omaleader.jsonc`. Omaleader only reads
+it and never writes it. Until that file exists, the bundled
+[`keymap.example.jsonc`](keymap.example.jsonc) is used: copy it there as a
+starting point. Saved changes apply immediately.
+
+```sh
+cp ~/.config/omarchy/plugins/tjtuom.omaleader/keymap.example.jsonc ~/.config/omarchy/omaleader.jsonc
+omarchy-shell shell rescanPlugins   # once, so it starts watching your new file
+```
 
 ```jsonc
 {
@@ -66,11 +78,37 @@ Each key is a single character (case-sensitive) or one of `space`, `tab`,
 
 In the popup, Backspace goes up a level and Esc closes it.
 
-If you create `omaleader.jsonc` while the shell is running on the example,
-run `omarchy-shell shell rescanPlugins` once so it starts watching your file.
+The keymap runs whatever commands you put in it, with your user's
+permissions, inside the Omarchy shell. Only add commands you trust.
 
 ## IPC
 
 ```sh
 omarchy-shell omaleader toggle   # or: hide, isOpen
 ```
+
+## Remove
+
+```sh
+omarchy plugin remove tjtuom.omaleader
+```
+
+Then delete the leader binding you added (`~/.config/hypr/omaleader.lua` and
+its `require` line) and run `hyprctl reload`; Super+Space returns to the stock
+Omarchy menu. Delete `~/.config/omarchy/omaleader.jsonc` too if you no longer
+want your keymap.
+
+## Development
+
+Clone the repo anywhere and link it in place of an installed copy:
+
+```sh
+ln -s ~/Dev/omaleader ~/.config/omarchy/plugins/tjtuom.omaleader
+omarchy plugin validate ~/Dev/omaleader
+```
+
+Saved changes to the QML reload automatically.
+
+## License
+
+[MIT](LICENSE)

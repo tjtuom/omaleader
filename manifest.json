@@ -11,5 +11,6 @@
   "keepLoaded": true,
   "entryPoints": {
     "overlay": "Leader.qml"
-  }
+  },
+  "license": "MIT"
 }
